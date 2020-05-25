@@ -1,6 +1,6 @@
 Name:          clevis
 Version:       11
-Release:       3
+Release:       4
 Summary:       A plugable framework for automated decryption
 
 License:       GPLv3+
@@ -93,6 +93,9 @@ desktop-file-validate %{buildroot}%{_sysconfdir}/xdg/autostart/%{name}-luks-udis
 %{_mandir}/man*
 
 %changelog
+* Mon May 25 2020 openEuler Buildteam <buildteam@openeuler.org> - 11-4
+- Rebuild for clevis
+
 * Fri Oct 18 2019 openEuler Buildteam <buildteam@openeuler.org> - 11-3
 - Add COPYING.openssl
 
