@@ -1,6 +1,6 @@
 Name:          clevis
-Version:       11
-Release:       4
+Version:       15
+Release:       1
 Summary:       A plugable framework for automated decryption
 
 License:       GPLv3+
@@ -10,6 +10,7 @@ Source0:       https://github.com/latchset/%{name}/releases/download/v%{version}
 BuildRequires: meson cmake jansson jose pkgconfig libjose-devel gdb asciidoc gcc openssl-devel
 BuildRequires: desktop-file-utils libudisks2-devel audit-libs-devel tang dracut pkgconfig
 BuildRequires: bash-completion tpm2-tools luksmeta libluksmeta-devel ninja-build systemd curl
+BuildRequires: cracklib-dicts diffutils jq
 Requires:      tpm2-tools jose curl coreutils cryptsetup luksmeta
 Provides:      clevis-luks
 Obsoletes:     clevis-luks
@@ -82,6 +83,9 @@ desktop-file-validate %{buildroot}%{_sysconfdir}/xdg/autostart/%{name}-luks-udis
 %files dracut
 %defattr(-,root,root)
 %{_prefix}/lib/dracut/modules.d/60clevis/*
+%{_prefix}/lib/dracut/modules.d/60clevis-pin-sss/module-setup.sh
+%{_prefix}/lib/dracut/modules.d/60clevis-pin-tang/module-setup.sh
+%{_prefix}/lib/dracut/modules.d/60clevis-pin-tpm2/module-setup.sh
 
 %files udisks2
 %defattr(-,root,root)
@@ -93,6 +97,9 @@ desktop-file-validate %{buildroot}%{_sysconfdir}/xdg/autostart/%{name}-luks-udis
 %{_mandir}/man*
 
 %changelog
+* Fri Oct 30 2020 panxiaohe <panxiaohe@huawei.com> - 15-1
+- Update to v15
+
 * Mon May 25 2020 openEuler Buildteam <buildteam@openeuler.org> - 11-4
 - Rebuild for clevis
 
