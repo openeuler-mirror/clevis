@@ -1,11 +1,15 @@
 Name:          clevis
 Version:       11
-Release:       4
+Release:       5
 Summary:       A plugable framework for automated decryption
 
 License:       GPLv3+
 URL:           https://github.com/latchset/%{name}
 Source0:       https://github.com/latchset/%{name}/releases/download/v%{version}/%{name}-%{version}.tar.xz
+
+Patch1:        backport-Delete-remaining-references-to-the-removed-http-pin.patch
+Patch2:        backport-Install-cryptsetup-and-tpm2_pcrlist-in-the-initramfs.patch
+Patch3:        backport-Add-device-TCTI-library-to-the-initramfs.patch
 
 BuildRequires: meson cmake jansson jose pkgconfig libjose-devel gdb asciidoc gcc openssl-devel
 BuildRequires: desktop-file-utils libudisks2-devel audit-libs-devel tang dracut pkgconfig
@@ -93,6 +97,11 @@ desktop-file-validate %{buildroot}%{_sysconfdir}/xdg/autostart/%{name}-luks-udis
 %{_mandir}/man*
 
 %changelog
+* Sat Dec 12 2020 Liquor <lirui130@huawei.com> - 11-5
+- Delete remaining references to the removed http pin
+  Install cryptsetup and tpm2_pcrlist in the initramfs
+  Add device TCTI library to the initramfs
+
 * Mon May 25 2020 openEuler Buildteam <buildteam@openeuler.org> - 11-4
 - Rebuild for clevis
 
