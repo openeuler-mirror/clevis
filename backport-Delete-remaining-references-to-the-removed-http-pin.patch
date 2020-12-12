@@ -1,0 +1,132 @@
+From 1e344dbf6a60fcd2c60a4b8512be455e112d8398 Mon Sep 17 00:00:00 2001
+From: Javier Martinez Canillas <javierm@redhat.com>
+Date: Wed, 7 Nov 2018 14:53:08 +0100
+Subject: [PATCH] Delete remaining references to the removed http pin
+
+Commit 800d73185d7f ("Remove HTTP pin") removed the clevis http pin, but
+there are still references of it in the docs and also the dracut module.
+
+This was causing dracut to fail building the initramfs due the following:
+
+dracut-install: ERROR: installing 'clevis-decrypt-http'
+
+Suggested-by: Dominick Grift <dac.override@gmail.com>
+
+Fixes: #73
+---
+ README.md                                  | 21 ---------------------
+ src/clevis.1.adoc                          | 21 ---------------------
+ src/luks/clevis-luks-bind.1.adoc           |  1 -
+ src/luks/systemd/dracut/module-setup.sh.in |  1 -
+ src/pins/sss/clevis-encrypt-sss.1.adoc     |  1 -
+ 5 files changed, 45 deletions(-)
+
+diff --git a/README.md b/README.md
+index ce8def1..d57339a 100644
+--- a/README.md
++++ b/README.md
+@@ -58,27 +58,6 @@ advertisement is stored, or the JSON contents of the advertisment itself. When
+ the advertisment is specified manually like this, Clevis presumes that the
+ advertisement is trusted.
+ 
+-#### PIN: HTTP
+-
+-Clevis also ships a pin for performing escrow using HTTP. Please note that,
+-at this time, this pin does not provide HTTPS support and is suitable only
+-for use over local sockets. This provides integration with services like
+-[Custodia](http://github.com/latchset/custodia).
+-
+-For example:
+-
+-```bash
+-$ echo hi | clevis encrypt http '{"url": "http://server.local/key"}' > hi.jwe
+-```
+-
+-The HTTP pin generate a new (cryptographically-strong random) key and performs
+-encryption using it. It then performs a PUT request to the URL specified. It is
+-understood that the server will securely store this key for later retrieval.
+-During decryption, the pin will perform a GET request to retrieve the key and
+-perform decryption.
+-
+-Patches to provide support for HTTPS and authentication are welcome.
+-
+ #### PIN: TPM2
+ 
+ Clevis provides support to encrypt a key in a Trusted Platform Module 2.0 (TPM2)
+diff --git a/src/clevis.1.adoc b/src/clevis.1.adoc
+index 756aba5..dea0a69 100644
+--- a/src/clevis.1.adoc
++++ b/src/clevis.1.adoc
+@@ -21,26 +21,6 @@ take a policy as its first argument and plaintext on standard input and to
+ encrypt the data so that it can be automatically decrypted if the policy is
+ met. Lets walk through an example.
+ 
+-== HTTP ESCROW
+-
+-When using the HTTP pin, we create a new, cryptographically-strong, random key.
+-This key is stored in a remote HTTP escrow server (using a simple PUT or POST).
+-Then at decryption time, we attempt to fetch the key back again in order to
+-decrypt our data. So, for our configuration we need to pass the URL to the key
+-location:
+-
+-    $ clevis encrypt http '{"url":"https://escrow.srv/1234"}' < PT > JWE
+-
+-To decrypt the data, simply provide the ciphertext (JWE):
+-
+-    $ clevis decrypt < JWE > PLAINTEXT
+-
+-Notice that we did not pass any configuration during decryption. The decrypt
+-command extracted the URL (and possibly other configuration) from the JWE
+-object, fetched the encryption key from the escrow and performed decryption.
+-
+-For more information, see link:clevis-encrypt-http.1.adoc[*clevis-encrypt-http*(1)].
+-
+ == TANG BINDING
+ 
+ Clevis provides support for the Tang network binding server. Tang provides
+@@ -136,7 +116,6 @@ For more information, see link:clevis-luks-bind.1.adoc[*clevis-luks-bind*(1)].
+ 
+ == SEE ALSO
+ 
+-link:clevis-encrypt-http.1.adoc[*clevis-encrypt-http*(1)],
+ link:clevis-encrypt-tang.1.adoc[*clevis-encrypt-tang*(1)],
+ link:clevis-encrypt-tpm2.1.adoc[*clevis-encrypt-tpm2*(1)],
+ link:clevis-encrypt-sss.1.adoc[*clevis-encrypt-sss*(1)],
+diff --git a/src/luks/clevis-luks-bind.1.adoc b/src/luks/clevis-luks-bind.1.adoc
+index 9f3a880..0d649e3 100644
+--- a/src/luks/clevis-luks-bind.1.adoc
++++ b/src/luks/clevis-luks-bind.1.adoc
+@@ -61,7 +61,6 @@ The images cannot be shared without also sharing a master key.
+ == SEE ALSO
+ 
+ link:clevis-luks-unlockers.7.adoc[*clevis-luks-unlockers*(7)],
+-link:clevis-encrypt-http.1.adoc[*clevis-encrypt-http*(1)],
+ link:clevis-encrypt-tang.1.adoc[*clevis-encrypt-tang*(1)],
+ link:clevis-encrypt-sss.1.adoc[*clevis-encrypt-sss*(1)],
+ link:clevis-decrypt.1.adoc[*clevis-decrypt*(1)]
+diff --git a/src/luks/systemd/dracut/module-setup.sh.in b/src/luks/systemd/dracut/module-setup.sh.in
+index 119762e..48aea5b 100755
+--- a/src/luks/systemd/dracut/module-setup.sh.in
++++ b/src/luks/systemd/dracut/module-setup.sh.in
+@@ -36,7 +36,6 @@ install() {
+     inst_hook initqueue/settled 60 "$moddir/clevis-hook.sh"
+ 
+     inst_multiple /etc/services \
+-        clevis-decrypt-http \
+         clevis-decrypt-tang \
+         clevis-decrypt-sss \
+         @libexecdir@/clevis-luks-askpass \
+diff --git a/src/pins/sss/clevis-encrypt-sss.1.adoc b/src/pins/sss/clevis-encrypt-sss.1.adoc
+index d46498d..7144e7e 100644
+--- a/src/pins/sss/clevis-encrypt-sss.1.adoc
++++ b/src/pins/sss/clevis-encrypt-sss.1.adoc
+@@ -54,6 +54,5 @@ receive key fragments.
+ 
+ == SEE ALSO
+ 
+-link:clevis-encrypt-http.1.adoc[*clevis-encrypt-http*(1)],
+ link:clevis-encrypt-tang.1.adoc[*clevis-encrypt-tang*(1)],
+ link:clevis-decrypt.1.adoc[*clevis-decrypt*(1)]
+-- 
+2.27.0
+
