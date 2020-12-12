@@ -1,0 +1,49 @@
+From 34658590e45ab85f6008379d9433406a5c7fd914 Mon Sep 17 00:00:00 2001
+From: Javier Martinez Canillas <javierm@redhat.com>
+Date: Wed, 7 Nov 2018 15:12:17 +0100
+Subject: [PATCH] Install cryptsetup and tpm2_pcrlist in the initramfs
+
+The cryptsetup and tpm2_pcrlist are missing in the initramfs, this makes
+automatic LUKS unlocking fail with the following errors:
+
+dracut-initqueue[382]: /usr/libexec/clevis-luks-askpass: line 52: cryptsetup: command not found
+dracut-initqueue[382]: /usr/bin/clevis-decrypt-tpm2: line 40: tpm2_pcrlist: command not found
+
+Suggested-by: Federico Chiacchiaretta <federico.chia@gmail.com>
+
+Fixes: #74
+---
+ src/luks/systemd/dracut/module-setup.sh.in | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/luks/systemd/dracut/module-setup.sh.in b/src/luks/systemd/dracut/module-setup.sh.in
+index 48aea5b..41e7d6c 100755
+--- a/src/luks/systemd/dracut/module-setup.sh.in
++++ b/src/luks/systemd/dracut/module-setup.sh.in
+@@ -40,6 +40,7 @@ install() {
+         clevis-decrypt-sss \
+         @libexecdir@/clevis-luks-askpass \
+         clevis-decrypt \
++        cryptsetup \
+         luksmeta \
+         clevis \
+         mktemp \
+@@ -49,6 +50,7 @@ install() {
+ 
+     for cmd in clevis-decrypt-tpm2 \
+ 	tpm2_createprimary \
++	tpm2_pcrlist \
+ 	tpm2_unseal \
+ 	tpm2_load; do
+ 
+@@ -60,6 +62,7 @@ install() {
+     if (($ret == 0)); then
+ 	inst_multiple clevis-decrypt-tpm2 \
+ 	    tpm2_createprimary \
++	    tpm2_pcrlist \
+ 	    tpm2_unseal \
+ 	    tpm2_load
+     fi
+-- 
+2.27.0
+
