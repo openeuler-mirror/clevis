@@ -1,0 +1,39 @@
+From fa30660f4875adf4675faf3c1d8cff05fc79bafe Mon Sep 17 00:00:00 2001
+From: Jonathan Lebon <jonathan@jlebon.com>
+Date: Thu, 2 Jul 2020 11:08:58 -0400
+Subject: [PATCH] systemd: reword Description of units
+
+Let's match the description style that systemd itself uses for their
+password agents (see e.g. `systemd-ask-password-wall.{path,service}`).
+Keeping it uniform makes it more obvious that it's the exact same setup
+without having to look inside it.
+---
+ src/luks/systemd/clevis-luks-askpass.path       | 2 +-
+ src/luks/systemd/clevis-luks-askpass.service.in | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/luks/systemd/clevis-luks-askpass.path b/src/luks/systemd/clevis-luks-askpass.path
+index 89e0aed..910cf17 100644
+--- a/src/luks/systemd/clevis-luks-askpass.path
++++ b/src/luks/systemd/clevis-luks-askpass.path
+@@ -1,5 +1,5 @@
+ [Unit]
+-Description=Clevis systemd-ask-password Watcher
++Description=Forward Password Requests to Clevis Directory Watch
+ Documentation=man:clevis-luks-unlockers(7)
+ DefaultDependencies=no
+ Before=cryptsetup-pre.target
+diff --git a/src/luks/systemd/clevis-luks-askpass.service.in b/src/luks/systemd/clevis-luks-askpass.service.in
+index 458389f..6c8cb32 100644
+--- a/src/luks/systemd/clevis-luks-askpass.service.in
++++ b/src/luks/systemd/clevis-luks-askpass.service.in
+@@ -1,5 +1,5 @@
+ [Unit]
+-Description=Clevis LUKS systemd-ask-password Responder
++Description=Forward Password Requests to Clevis
+ Documentation=man:clevis-luks-unlockers(7)
+ DefaultDependencies=no
+ 
+-- 
+2.27.0
+
