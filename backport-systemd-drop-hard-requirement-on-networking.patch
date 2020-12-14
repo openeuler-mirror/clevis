@@ -1,0 +1,59 @@
+From ba8fab247cd075e4ef882171774f67f33ce17d76 Mon Sep 17 00:00:00 2001
+From: Jonathan Lebon <jonathan@jlebon.com>
+Date: Thu, 2 Jul 2020 11:08:55 -0400
+Subject: [PATCH] systemd: drop hard requirement on networking
+
+Whether we need networking or not for unlocking an encrypted block
+device is a property of the block device in question. This is expressed
+in `/etc/crypttab` via the `_netdev` option. For example, the systemd
+cryptsetup generator[1] picks up on this and correctly orders unlocking
+of devices that need networking after `remote-fs-pre.target`.
+
+Thus, we shouldn't need to unconditionally require and order ourselves
+after networking comes up. Let whatever interprets `/etc/crypttab` take
+care of this.
+
+Add `DefaultDependencies=no` because we need to be able to run well
+before `sysinit.target`.
+
+[1] https://www.freedesktop.org/software/systemd/man/systemd-cryptsetup-generator.html
+---
+ src/luks/systemd/clevis-luks-askpass.path       | 7 ++++---
+ src/luks/systemd/clevis-luks-askpass.service.in | 3 +--
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/src/luks/systemd/clevis-luks-askpass.path b/src/luks/systemd/clevis-luks-askpass.path
+index a4d01ba..5696786 100644
+--- a/src/luks/systemd/clevis-luks-askpass.path
++++ b/src/luks/systemd/clevis-luks-askpass.path
+@@ -1,10 +1,11 @@
+ [Unit]
+ Description=Clevis systemd-ask-password Watcher
+-Before=remote-fs-pre.target
+-Wants=remote-fs-pre.target
++DefaultDependencies=no
++Before=cryptsetup-pre.target
++Wants=cryptsetup-pre.target
+ 
+ [Path]
+ PathChanged=/run/systemd/ask-password
+ 
+ [Install]
+-WantedBy=remote-fs.target
++WantedBy=cryptsetup.target
+diff --git a/src/luks/systemd/clevis-luks-askpass.service.in b/src/luks/systemd/clevis-luks-askpass.service.in
+index 2c6bbed..f1908d5 100644
+--- a/src/luks/systemd/clevis-luks-askpass.service.in
++++ b/src/luks/systemd/clevis-luks-askpass.service.in
+@@ -1,7 +1,6 @@
+ [Unit]
+ Description=Clevis LUKS systemd-ask-password Responder
+-Requires=network-online.target
+-After=network-online.target
++DefaultDependencies=no
+ 
+ [Service]
+ Type=oneshot
+-- 
+2.27.0
+

@@ -1,0 +1,74 @@
+From c52caeb438edb54c4c0559dfb8a349ed1f14400a Mon Sep 17 00:00:00 2001
+From: Jonathan Lebon <jonathan@jlebon.com>
+Date: Thu, 2 Jul 2020 11:08:56 -0400
+Subject: [PATCH] dracut: drop rd.neednet=1 injection
+
+By default, dracut builds generic initrds which by design shouldn't have
+any configuration specific to a host baked in (as opposed to so-called
+"hostonly" initrds). This property is leveraged with great success in
+immutable hosts like Fedora CoreOS and its downstream RHCOS where the
+initrd is created server-side.
+
+By unconditionally injecting `rd.neednet=1`, the clevis-pin-tang dracut
+module makes it impossible to be included into a truly generic initrd,
+where one cannot make assumptions about the network (or lack thereof,
+see #54) of the target hosts.
+
+So with a generic initrd, how can we make sure that networking is up at
+initrd time on a host which has been configured with root-on-LUKS with a
+Tang pin? By also configuring it with `rd.neednet=1` specified on the
+kernel command-line, and possibly `ip=...` to configure the network
+interfaces.
+
+This is no different from root-on-{NFS,iSCSI,NBD,...}, where one must
+use explicit kernel arguments like `root=nfs:<server>:...` or
+`root=iscsi:<server>:...` or `root=nbd:<server>:...`, all of which imply
+`rd.neednet=1` (one could imagine then a `root=tang:<luks2_uuid>` type
+karg in the future which would be roughly equivalent to
+`root=UUID=<luks2_uuid> rd.neednet=1`).
+
+Dracut also allows one to build host-specific initrds using the
+`-H`/`--hostonly` option, and further the ability to bake the
+command-line arguments when `--hostonly-cmdline` is provided.
+
+So a supplementary approach here would be for `install()` to only inject
+`rd.neednet=1` if using `--hostonly-cmdline` *and* somewhere along the
+root block device hierarchy, there is a Tang-pinned LUKS device. This is
+also analogous to what other dracut modules like 95nfs and 95iscsi do.
+
+However, optimizations for host-only initrds should not come before
+getting correct support for generic initrds.
+
+Closes: #54
+Closes: #206
+
+Conflict:
+Change path src/luks/systemd/dracut/clevis-pin-tang/module-setup.sh.in
+to path src/luks/systemd/dracut/module-setup.sh.in
+---
+ src/luks/systemd/dracut/module-setup.sh.in | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/src/luks/systemd/dracut/module-setup.sh.in b/src/luks/systemd/dracut/module-setup.sh.in
+index 990bf4a..b1bf9cc 100755
+--- a/src/luks/systemd/dracut/module-setup.sh.in
++++ b/src/luks/systemd/dracut/module-setup.sh.in
+@@ -23,15 +23,9 @@ depends() {
+     return 0
+ }
+ 
+-cmdline() {
+-    echo "rd.neednet=1"
+-}
+-
+ install() {
+     local ret=0
+ 
+-    cmdline > "${initdir}/etc/cmdline.d/99clevis.conf"
+-
+     inst_hook initqueue/online 60 "$moddir/clevis-hook.sh"
+     inst_hook initqueue/settled 60 "$moddir/clevis-hook.sh"
+ 
+-- 
+2.27.0
+
