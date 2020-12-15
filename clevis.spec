@@ -1,6 +1,6 @@
 Name:          clevis
 Version:       11
-Release:       5
+Release:       6
 Summary:       A plugable framework for automated decryption
 
 License:       GPLv3+
@@ -10,6 +10,10 @@ Source0:       https://github.com/latchset/%{name}/releases/download/v%{version}
 Patch1:        backport-Delete-remaining-references-to-the-removed-http-pin.patch
 Patch2:        backport-Install-cryptsetup-and-tpm2_pcrlist-in-the-initramfs.patch
 Patch3:        backport-Add-device-TCTI-library-to-the-initramfs.patch
+Patch4:        backport-systemd-drop-hard-requirement-on-networking.patch
+Patch5:        backport-dracut-drop-rd.neednet-1-injection.patch
+Patch6:        backport-systemd-add-Documentation-keys-to-units.patch
+Patch7:        backport-systemd-reword-Description-of-units.patch
 
 BuildRequires: meson cmake jansson jose pkgconfig libjose-devel gdb asciidoc gcc openssl-devel
 BuildRequires: desktop-file-utils libudisks2-devel audit-libs-devel tang dracut pkgconfig
@@ -97,6 +101,9 @@ desktop-file-validate %{buildroot}%{_sysconfdir}/xdg/autostart/%{name}-luks-udis
 %{_mandir}/man*
 
 %changelog
+* Mon Dec 14 2020 Liquor <lirui130@huawei.com> - 11-6
+- Drop hard requirement on networking
+
 * Sat Dec 12 2020 Liquor <lirui130@huawei.com> - 11-5
 - Delete remaining references to the removed http pin
   Install cryptsetup and tpm2_pcrlist in the initramfs
