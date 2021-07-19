@@ -1,13 +1,13 @@
 Name:          clevis
 Version:       15
-Release:       1
+Release:       2
 Summary:       A plugable framework for automated decryption
 
 License:       GPLv3+
 URL:           https://github.com/latchset/%{name}
 Source0:       https://github.com/latchset/%{name}/releases/download/v%{version}/%{name}-%{version}.tar.xz
 
-BuildRequires: meson cmake jansson jose pkgconfig libjose-devel gdb asciidoc gcc openssl-devel
+BuildRequires: meson cmake jansson jose pkgconfig libjose-devel asciidoc gcc openssl-devel
 BuildRequires: desktop-file-utils libudisks2-devel audit-libs-devel tang dracut pkgconfig
 BuildRequires: bash-completion tpm2-tools luksmeta libluksmeta-devel ninja-build systemd curl
 BuildRequires: cracklib-dicts diffutils jq
@@ -97,6 +97,9 @@ desktop-file-validate %{buildroot}%{_sysconfdir}/xdg/autostart/%{name}-luks-udis
 %{_mandir}/man*
 
 %changelog
+* Mon Jul 19 2021 yixiangzhike <zhangxingliang3@huawei.com> - 15-2
+- Delete unnecessary gdb from BuildRequires
+
 * Fri Oct 30 2020 panxiaohe <panxiaohe@huawei.com> - 15-1
 - Update to v15
 
