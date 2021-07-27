@@ -1,6 +1,6 @@
 Name:          clevis
-Version:       15
-Release:       2
+Version:       18
+Release:       1
 Summary:       A plugable framework for automated decryption
 
 License:       GPLv3+
@@ -27,7 +27,7 @@ can be unlocked using one of the provided unlockers.
 %package systemd
 Summary:       Systemd integration for clevis
 Requires:      %{name}%{?_isa} = %{version}-%{release}
-Requires:      systemd nc
+Requires:      systemd
 
 %description systemd
 The systemd unlocker attempts to automatically unlock LUKSv1 _netdev block devices from /etc/crypttab.
@@ -97,6 +97,9 @@ desktop-file-validate %{buildroot}%{_sysconfdir}/xdg/autostart/%{name}-luks-udis
 %{_mandir}/man*
 
 %changelog
+* Tue Jul 27 2021 wangchen <wangchen137@huawei.com> - 18-1
+- Update version to 18
+
 * Mon Jul 19 2021 yixiangzhike <zhangxingliang3@huawei.com> - 15-2
 - Delete unnecessary gdb from BuildRequires
 
