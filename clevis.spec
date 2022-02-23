@@ -1,6 +1,6 @@
 Name:          clevis
 Version:       18
-Release:       1
+Release:       2
 Summary:       A plugable framework for automated decryption
 
 License:       GPLv3+
@@ -64,7 +64,12 @@ that use UDisks2 or storaged (like GNOME).
 # add test for clevis-luks-udisks2.desktop: validates the clevis-luks-udisks2.desktop 
 # and prints warnings/errors about desktop entry specification violations
 desktop-file-validate %{buildroot}%{_sysconfdir}/xdg/autostart/%{name}-luks-udisks2.desktop
-%meson_test
+%ifarch riscv64
+# Fix poor performance
+%meson_test --timeout-multiplier 10
+%else
+%meson_test 
+%endif
 
 %files
 %defattr(-,root,root)
@@ -97,6 +102,9 @@ desktop-file-validate %{buildroot}%{_sysconfdir}/xdg/autostart/%{name}-luks-udis
 %{_mandir}/man*
 
 %changelog
+* Wed Feb 23 2022 YukariChiba <i@0x7f.cc> - 18-2
+- Add timeout-multiplier for RISC-V due to performance issues
+
 * Tue Jul 27 2021 wangchen <wangchen137@huawei.com> - 18-1
 - Update version to 18
 
